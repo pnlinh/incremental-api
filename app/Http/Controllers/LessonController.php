@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Lesson;
 use App\Transformer\LessonTransformer;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class LessonController extends BaseApiController
 {
@@ -50,7 +51,15 @@ class LessonController extends BaseApiController
      */
     public function store(Request $request)
     {
-        //
+        if (! $request->title || ! $request->body) {
+            return $this
+                ->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)
+                ->respondWithError('Parameter failed validation for a lesson.');
+        }
+
+        Lesson::create($request->merge(['some_bool' => 1])->all());
+
+        return $this->responseCreated('Lesson successfully created');
     }
 
     /**

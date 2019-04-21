@@ -34,6 +34,15 @@ class BaseApiController extends Controller
             ->respondWithError($message);
     }
 
+    public function responseCreated($message = '')
+    {
+        return $this
+                ->setStatusCode(Response::HTTP_CREATED)
+                ->respond([
+                    'message' => $message,
+                ]);
+    }
+
     public function respond($data, $headers = [])
     {
         return \response()->json($data, $this->getStatusCode(), $headers);
