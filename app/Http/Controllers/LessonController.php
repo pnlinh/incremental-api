@@ -17,7 +17,7 @@ class LessonController extends Controller
         $lessons = Lesson::all();
 
         return response()->json([
-            'data' => $lessons,
+            'data' => $this->transformCollection($lessons),
         ]);
     }
 
@@ -34,7 +34,7 @@ class LessonController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -45,7 +45,7 @@ class LessonController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -56,19 +56,19 @@ class LessonController extends Controller
             return response()->json([
                 'error' => [
                     'message' => 'Lesson does not exist',
-                ]
+                ],
             ], 404);
         }
 
         return response()->json([
-            'data' => $lesson,
+            'data' => $this->transform($lesson),
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -79,8 +79,8 @@ class LessonController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -91,11 +91,25 @@ class LessonController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
         //
+    }
+
+    private function transform($lesson)
+    {
+        return [
+            'title' => $lesson['title'],
+            'body' => $lesson['body'],
+            'active' => (boolean) $lesson['some_bool'],
+        ];
+    }
+
+    private function transformCollection($lessons)
+    {
+        return array_map([$this, 'transform'], $lessons->toArray());
     }
 }
