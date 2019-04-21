@@ -6,6 +6,7 @@ use App\Lesson;
 use App\Transformer\LessonTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class LessonController extends BaseApiController
 {
@@ -24,12 +25,14 @@ class LessonController extends BaseApiController
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $lessons = Lesson::all();
+        $limit = $request->limit ?? 10;
 
-        return $this->respond([
-            'data' => $this->lessonTransformer->transformCollection($lessons->toArray()),
+        $lessons = Lesson::paginate($limit);
+
+        return $this->respondWithPagination($lessons, [
+            'data' => $this->lessonTransformer->transformCollection($lessons->all()),
         ]);
     }
 
@@ -113,5 +116,19 @@ class LessonController extends BaseApiController
     public function destroy($id)
     {
         //
+    }
+
+    public function respondWithPagination(LengthAwarePaginator $lessons, $data = [])
+    {
+        $data = array_merge($data, [
+            'paginator' => [
+                'total_count' => $lessons->total(),
+                'total_pages' => ceil($lessons->total() / $lessons->perPage()),
+                'current_page' => $lessons->currentPage(),
+                'limit' => (int) $lessons->perPage(),
+            ],
+        ]);
+
+        return $this->respond($data);
     }
 }
